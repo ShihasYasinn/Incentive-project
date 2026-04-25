@@ -1,0 +1,131 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Incentive Slabs - Incentive Portal{% endblock %}
+{% block page_title %}Incentive Slabs{% endblock %}
+{% block breadcrumb %}Incentives / Slabs{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 30px;">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h3 style="margin: 0; color: var(--text-main); font-size: 18px;">Monthly Achievement Slabs</h3>
+            <p style="margin: 4px 0 0; font-size: 12px; color: var(--text-muted);">Configure incentive percentages based on target achievement.</p>
+        </div>
+        <a href="{% url 'slab_create' %}" class="btn-outline">
+            <i class="fas fa-plus"></i> Add Achievement Slab
+        </a>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding-left: 24px;">Load Type</th>
+                    <th>Achievement Range</th>
+                    <th>Incentive %</th>
+                    <th style="text-align: right; padding-right: 24px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for slab in slabs %}
+                <tr>
+                    <td style="padding-left: 24px;">
+                        <span class="badge {% if slab.load_slab == 'ABOVE' %}badge-admin{% elif slab.load_slab == 'BOTH' %}badge-employee{% else %}badge-analyst{% endif %}">
+                            {{ slab.get_load_slab_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <strong>{{ slab.min_achievement_percent }}%</strong>{% if slab.max_achievement_percent %} - <strong>{{ slab.max_achievement_percent }}%</strong>{% else %}+{% endif %}
+                    </td>
+                    <td><span style="color: #22c55e; font-weight: 700;">{{ slab.incentive_percent }}% of Target</span></td>
+                    <td style="text-align: right; padding-right: 24px;">
+                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                            <a href="{% url 'slab_edit' slab.pk %}" class="btn-outline" style="padding: 6px 12px; font-size: 12px;" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'slab_delete' slab.pk %}" class="btn-outline" style="padding: 6px 12px; font-size: 12px; color: #ef4444; border-color: #fee2e2;" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        No achievement slabs configured yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h3 style="margin: 0; color: var(--text-main); font-size: 18px;">Load Growth Slabs</h3>
+            <p style="margin: 4px 0 0; font-size: 12px; color: var(--text-muted);">Configure bonuses for year-over-year growth and deductions for degrowth.</p>
+        </div>
+        <a href="{% url 'growth_slab_create' %}" class="btn-outline">
+            <i class="fas fa-plus"></i> Add Growth Slab
+        </a>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding-left: 24px;">Load Type</th>
+                    <th>Growth Range</th>
+                    <th>Benefit / Penalty</th>
+                    <th style="text-align: right; padding-right: 24px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for gslab in growth_slabs %}
+                <tr>
+                    <td style="padding-left: 24px;">
+                        <span class="badge {% if gslab.load_slab == 'ABOVE' %}badge-admin{% elif gslab.load_slab == 'BOTH' %}badge-employee{% else %}badge-analyst{% endif %}">
+                            {{ gslab.get_load_slab_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if gslab.min_growth_percent is not None and gslab.max_growth_percent is not None %}
+                            <strong>{{ gslab.min_growth_percent }}%</strong> to <strong>{{ gslab.max_growth_percent }}%</strong>
+                        {% elif gslab.min_growth_percent is not None %}
+                            <strong>{{ gslab.min_growth_percent }}% +</strong>
+                        {% elif gslab.max_growth_percent is not None %}
+                            Up to <strong>{{ gslab.max_growth_percent }}%</strong>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if gslab.incentive_amount > 0 %}
+                            <span style="color: #22c55e; font-weight: 700;">+ ₹{{ gslab.incentive_amount }}</span>
+                        {% elif gslab.deduction_percent > 0 %}
+                            <span style="color: #ef4444; font-weight: 700;">- {{ gslab.deduction_percent }}% Deduction</span>
+                        {% else %}
+                            <span style="color: var(--text-muted);">No Adjustment</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right; padding-right: 24px;">
+                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                            <a href="{% url 'growth_slab_edit' gslab.pk %}" class="btn-outline" style="padding: 6px 12px; font-size: 12px;" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'growth_slab_delete' gslab.pk %}" class="btn-outline" style="padding: 6px 12px; font-size: 12px; color: #ef4444; border-color: #fee2e2;" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        No load growth slabs configured yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Analyst Dashboard | Incentive Portal{% endblock %}
+
+{% block page_title %}Analyst Overview{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        margin-bottom: 35px;
+    }
+
+    @media (max-width: 1100px) {
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+    }
+
+    .stat-card {
+        background: var(--white);
+        padding: 22px 25px;
+        border-radius: 18px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-color);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+        box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05);
+    }
+
+    .stat-icon.reports { background: #eff6ff; color: #2563eb; }
+    .stat-icon.pending { background: #fff7ed; color: #f97316; }
+    .stat-icon.incentives { background: #f0fdf4; color: #22c55e; }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1;
+        margin-bottom: 4px;
+        letter-spacing: -0.5px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 600;
+        white-space: nowrap;
+        letter-spacing: 0.2px;
+    }
+
+    .action-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+    }
+
+    @media (max-width: 768px) {
+        .action-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon reports">
+            <i class="fas fa-file-invoice"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_reports }}</div>
+            <div class="stat-label">Total Reports</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon pending">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">{{ pending_reviews }}</div>
+            <div class="stat-label">Pending Reviews</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon incentives">
+            <i class="fas fa-coins"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-value">{{ processed_incentives }}</div>
+            <div class="stat-label">Total Processed</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Recent Upload Sessions</h3>
+        <a href="{% url 'upload_excel' %}" class="btn-outline">
+            <i class="fas fa-history"></i> View All
+        </a>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        {% if recent_uploads %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Report Date</th>
+                    <th>File Name</th>
+                    <th>Uploaded At</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in recent_uploads %}
+                <tr>
+                    <td><strong>{{ session.report_date|date:"M d, Y" }}</strong></td>
+                    <td><i class="far fa-file-excel" style="color: #16a34a; margin-right: 8px;"></i> {{ session.file_name }}</td>
+                    <td>{{ session.upload_timestamp|date:"M d, H:i" }}</td>
+                    <td>
+                        {% if session.is_active %}
+                        <span class="badge badge-employee"><i class="fas fa-check-circle" style="margin-right: 4px;"></i> Active</span>
+                        {% else %}
+                        <span class="badge badge-admin" style="background: #f1f5f9; color: #64748b;"><i class="fas fa-history" style="margin-right: 4px;"></i> Superseded</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="padding: 60px; text-align: center; color: var(--text-muted);">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 48px; margin-bottom: 15px; opacity: 0.2;"></i>
+            <p>No reports have been uploaded yet.</p>
+            <p style="font-size: 13px; margin-top: 5px;">Go to "Upload Report" in the sidebar to get started.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
