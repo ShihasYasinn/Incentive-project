@@ -1,0 +1,28 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Delete Slab - Incentive Portal{% endblock %}
+{% block page_title %}Confirm Deletion{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 40px auto;">
+    <div class="card" style="border-color: #fee2e2;">
+        <div class="card-header" style="background: #fef2f2; border-bottom-color: #fee2e2;">
+            <h3 style="color: #ef4444;">Delete {% if is_growth %}Load Growth{% else %}Achievement{% endif %} Slab?</h3>
+        </div>
+        <div class="card-body">
+            <p style="margin-bottom: 20px; color: var(--text-muted);">
+                Are you sure you want to delete the slab for <strong>{{ slab.get_load_slab_display }}</strong>? This action cannot be undone and may affect future incentive calculations.
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="btn-outline" style="background: #ef4444; color: white; border-color: #ef4444;">
+                        Yes, Delete Permanently
+                    </button>
+                    <a href="{% url 'slab_list' %}" class="btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

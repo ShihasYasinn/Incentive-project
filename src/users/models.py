@@ -24,7 +24,6 @@ class UserManager(BaseUserManager):
             **extra_fields
         )
 
-
 class User(AbstractBaseUser, PermissionsMixin):
 
     ROLE_CHOICES = (
@@ -35,10 +34,23 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='employee')
+    
+    # Employee details (moved from Employee model)
+    full_name = models.CharField(max_length=255, blank=True, null=True)
+    branch = models.CharField(max_length=100, blank=True, null=True)
+
+    employee_id = models.CharField(
+        max_length=50, 
+        unique=True, 
+        db_index=True, 
+        null=True, 
+        blank=True
+    )
+
 
     # Django required fields
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)  # needed for admin panel
+    is_staff = models.BooleanField(default=False) 
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -48,5 +60,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return self.email
+        return f"{self.full_name or self.email} ({self.role})"
